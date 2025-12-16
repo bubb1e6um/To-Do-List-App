@@ -1,0 +1,283 @@
+:root {
+    --primary-purple: #6C63FF; /* Цвет с макета */
+    --bg-color: #F7F7F7;
+    --text-color: #252525;
+    --card-bg: #FFFFFF;
+    --input-bg: #FFFFFF;
+    --border-color: #6C63FF;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Темная тема */
+body.dark-mode {
+    --bg-color: #252525;
+    --text-color: #F7F7F7;
+    --card-bg: #2C2C2C;
+    --input-bg: #2C2C2C;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Kanit', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    padding-top: 50px;
+    transition: background 0.3s;
+}
+
+.container {
+    width: 100%;
+    max-width: 750px;
+    padding: 20px;
+    position: relative;
+    min-height: 80vh; /* Чтобы кнопка была внизу */
+}
+
+.app-title {
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Контроллеры (Поиск и кнопки) */
+.controls {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.search-box {
+    position: relative;
+    flex-grow: 1;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 40px 10px 15px;
+    border: 1px solid var(--primary-purple);
+    border-radius: 5px;
+    outline: none;
+    background: var(--input-bg);
+    color: var(--text-color);
+}
+
+.search-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary-purple);
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+select {
+    padding: 0 15px;
+    border: none;
+    background-color: var(--primary-purple);
+    color: white;
+    border-radius: 5px;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+}
+
+.icon-btn {
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary-purple);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+/* Список задач */
+.todo-list {
+    list-style: none;
+}
+
+.todo-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 0;
+    border-bottom: 1px solid #E0E0E0;
+}
+
+.todo-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Кастомный чекбокс */
+.checkbox-custom {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--primary-purple);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.todo-item.completed .checkbox-custom {
+    background-color: var(--primary-purple);
+}
+
+.todo-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.todo-item.completed .todo-text {
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+
+.todo-actions {
+    display: flex;
+    gap: 10px;
+    opacity: 0; /* Скрываем действия, показываем при наведении */
+    transition: opacity 0.2s;
+}
+
+.todo-item:hover .todo-actions {
+    opacity: 1;
+}
+
+.action-icon {
+    color: #999;
+    cursor: pointer;
+    font-size: 1rem;
+}
+.action-icon:hover { color: var(--primary-purple); }
+
+/* Состояние Empty */
+.empty-state {
+    text-align: center;
+    margin-top: 100px;
+}
+.empty-state img {
+    width: 200px;
+    opacity: 0.5;
+    margin-bottom: 20px;
+}
+.hidden { display: none !important; }
+
+/* Кнопка FAB */
+.fab {
+    position: fixed;
+    bottom: 40px;
+    right: max(40px, calc(50% - 355px)); /* Центрирование относительно контейнера на больших экранах */
+    width: 60px;
+    height: 60px;
+    background-color: var(--primary-purple);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(108, 99, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+.fab:hover { transform: scale(1.1); }
+
+/* Модальное окно */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Затемнение фона */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+.modal-title {
+    margin-bottom: 25px;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.modal-input-wrapper {
+    margin-bottom: 30px;
+}
+
+.modal-input-wrapper input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--primary-purple);
+    border-radius: 5px;
+    outline: none;
+    background: transparent;
+    color: var(--text-color);
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 5px;
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--primary-purple);
+    color: var(--primary-purple);
+}
+
+.btn-fill {
+    background: var(--primary-purple);
+    border: none;
+    color: white;
+}

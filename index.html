@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="app-title">TODO LIST</h1>
+
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search note...">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+            
+            <div class="actions">
+                <select id="filter-select">
+                    <option value="all">ALL</option>
+                    <option value="completed">Complete</option>
+                    <option value="incomplete">Incomplete</option>
+                </select>
+                
+                <button id="theme-btn" class="icon-btn">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+
+        <ul id="todo-list" class="todo-list">
+            </ul>
+
+        <div id="empty-state" class="empty-state hidden">
+            <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-state-2130362-1800926.png" alt="Empty">
+            <p>Empty...</p>
+        </div>
+
+        <button id="add-btn" class="fab">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+
+    <div id="modal-overlay" class="modal-overlay hidden">
+        <div class="modal">
+            <h2 class="modal-title">NEW NOTE</h2>
+            <div class="modal-input-wrapper">
+                <input type="text" id="new-todo-input" placeholder="Input your note...">
+            </div>
+            <div class="modal-buttons">
+                <button id="cancel-btn" class="btn btn-outline">CANCEL</button>
+                <button id="apply-btn" class="btn btn-fill">APPLY</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
