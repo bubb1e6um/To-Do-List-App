@@ -81,7 +81,6 @@ async function fetchRandomActivity() {
     }
 }
 
-// В. Внедрение кнопки "Магия"
 function injectMagicButton() {
     const magicBtn = document.createElement('button');
     magicBtn.id = 'magic-btn';
