@@ -11,50 +11,63 @@ const newTodoInput = document.getElementById('new-todo-input');
 const searchInput = document.getElementById('search-input');
 const filterSelect = document.getElementById('filter-select');
 const themeBtn = document.getElementById('theme-btn');
-const actionsContainer = document.querySelector('.actions'); // Для добавления новой кнопки
+const actionsContainer = document.querySelector('.actions');
 
 // Состояние приложения
 let todos = [];
 let editMode = false;
 let editId = null;
 
+// [LOCAL STORAGE] Ключи для хранилища
+const LS_KEY_TODOS = 'my_todo_list_data';
+const LS_KEY_THEME = 'my_todo_list_theme';
+
 // ==========================================
-// 2. РАБОТА С API (БЕСПЛАТНЫЕ СЕРВИСЫ)
+// 2. РАБОТА С API И ХРАНИЛИЩЕМ
 // ==========================================
 
-// А. Загрузка стартовых данных (Имитация)
-async function fetchInitialTodos() {
-    // Чтобы приложение не выглядело пустым при старте
-    const starterData = [
-        { id: 1, text: "Go shopping", completed: false },
-        { id: 2, text: "Prepare a report", completed: true },
-        { id: 3, text: "Make an appointment with a doctor", completed: false }
-    ];
-    
-    // В реальном проекте здесь был бы fetch, но для стабильности берем массив
-    todos = starterData;
-    renderTodos();
+// [LOCAL STORAGE] Функция сохранения текущего массива todos
+function saveTodosToLocal() {
+    localStorage.setItem(LS_KEY_TODOS, JSON.stringify(todos));
 }
 
-// Б. ГЕНЕРАТОР ИДЕЙ (ВАРИАНТ 1)
-// Функция делает запрос к API и добавляет случайную задачу
+// А. Загрузка стартовых данных
+async function fetchInitialTodos() {
+    // [LOCAL STORAGE] Сначала пробуем достать данные из памяти
+    const storedTodos = localStorage.getItem(LS_KEY_TODOS);
+
+    if (storedTodos) {
+        // Если в памяти что-то есть, парсим и используем это
+        todos = JSON.parse(storedTodos);
+        renderTodos();
+    } else {
+        // Если памяти нет (первый заход), грузим стартовые данные
+        const starterData = [
+            { id: 1, text: "Go shopping", completed: false },
+            { id: 2, text: "Prepare a report", completed: true },
+            { id: 3, text: "Make an appointment with a doctor", completed: false }
+        ];
+        todos = starterData;
+        renderTodos();
+        // [LOCAL STORAGE] Сразу сохраняем стартовый набор
+        saveTodosToLocal();
+    }
+}
+
+// Б. ГЕНЕРАТОР ИДЕЙ
 async function fetchRandomActivity() {
     const magicBtnIcon = document.getElementById('magic-btn').querySelector('i');
     
-    // Анимация загрузки (крутим иконку)
     magicBtnIcon.classList.remove('fa-magic');
     magicBtnIcon.classList.add('fa-spinner', 'fa-spin');
 
     try {
-        // Используем бесплатный API dummyjson (он стабильнее boredapi)
         const response = await fetch('https://dummyjson.com/todos/random');
         const data = await response.json();
 
-        // data.todo содержит текст задачи, например "Do something nice..."
         if (data && data.todo) {
-            addTodo(data.todo);
+            addTodo(data.todo); // addTodo внутри себя уже вызовет сохранение
             
-            // Прокручиваем список вниз к новой задаче
             setTimeout(() => {
                 todoList.lastElementChild.scrollIntoView({ behavior: 'smooth' });
             }, 100);
@@ -63,28 +76,21 @@ async function fetchRandomActivity() {
         console.error("Ошибка получения идеи:", error);
         alert("Не удалось получить идею. Проверьте интернет!");
     } finally {
-        // Возвращаем иконку обратно
         magicBtnIcon.classList.remove('fa-spinner', 'fa-spin');
         magicBtnIcon.classList.add('fa-magic');
     }
 }
 
-// В. Внедрение кнопки "Магия" в интерфейс
+// В. Внедрение кнопки "Магия"
 function injectMagicButton() {
-    // Создаем кнопку программно, чтобы не лезть в HTML
     const magicBtn = document.createElement('button');
     magicBtn.id = 'magic-btn';
     magicBtn.className = 'icon-btn';
     magicBtn.title = 'Мне скучно (Генератор идей)';
     magicBtn.innerHTML = '<i class="fas fa-magic"></i>';
-    
-    // Добавляем стиль для отличия (немного другой оттенок или просто стандартный)
     magicBtn.style.marginRight = '10px';
     
-    // Вставляем кнопку перед кнопкой темы
     actionsContainer.insertBefore(magicBtn, themeBtn);
-
-    // Вешаем слушатель событий
     magicBtn.addEventListener('click', fetchRandomActivity);
 }
 
@@ -136,11 +142,13 @@ function renderTodos() {
 function toggleComplete(id) {
     todos = todos.map(t => t.id === id ? {...t, completed: !t.completed} : t);
     renderTodos();
+    saveTodosToLocal(); // [LOCAL STORAGE] Сохраняем изменение
 }
 
 function deleteTodo(id) {
     todos = todos.filter(t => t.id !== id);
     renderTodos();
+    saveTodosToLocal(); // [LOCAL STORAGE] Сохраняем удаление
 }
 
 function addTodo(text) {
@@ -151,11 +159,13 @@ function addTodo(text) {
     };
     todos.push(newTodo);
     renderTodos();
+    saveTodosToLocal(); // [LOCAL STORAGE] Сохраняем новую задачу
 }
 
 function updateTodo(id, text) {
     todos = todos.map(t => t.id === id ? {...t, text: text} : t);
     renderTodos();
+    saveTodosToLocal(); // [LOCAL STORAGE] Сохраняем редактирование
 }
 
 // ==========================================
@@ -209,18 +219,44 @@ modalOverlay.addEventListener('click', (e) => {
 searchInput.addEventListener('input', renderTodos);
 filterSelect.addEventListener('change', renderTodos);
 
-themeBtn.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode');
+// [LOCAL STORAGE] Логика Темы
+// 1. Функция применения темы
+function applyTheme(isDark) {
     const icon = themeBtn.querySelector('i');
-    if (document.body.classList.contains('dark-mode')) {
+    if (isDark) {
+        document.body.classList.add('dark-mode');
         icon.classList.remove('fa-moon');
         icon.classList.add('fa-sun');
     } else {
+        document.body.classList.remove('dark-mode');
         icon.classList.remove('fa-sun');
         icon.classList.add('fa-moon');
     }
+}
+
+// 2. Проверка темы при загрузке
+const savedTheme = localStorage.getItem(LS_KEY_THEME);
+if (savedTheme === 'dark') {
+    applyTheme(true);
+}
+
+// 3. Обработчик клика с сохранением
+themeBtn.addEventListener('click', () => {
+    const isDarkModeNow = document.body.classList.toggle('dark-mode');
+    
+    // Обновляем иконку
+    const icon = themeBtn.querySelector('i');
+    if (isDarkModeNow) {
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+        localStorage.setItem(LS_KEY_THEME, 'dark'); // Сохраняем dark
+    } else {
+        icon.classList.remove('fa-sun');
+        icon.classList.add('fa-moon');
+        localStorage.setItem(LS_KEY_THEME, 'light'); // Сохраняем light
+    }
 });
 
-
+// Инициализация
 injectMagicButton();
 fetchInitialTodos();
